@@ -161,6 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="btn btn-secondary btn-sm action-copy-link">
               Copy Link
             </button>
+            <button class="btn btn-primary btn-sm action-show">
+              Show
+            </button>
             <button class="btn btn-secondary btn-sm action-edit">
               Edit
             </button>
@@ -176,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Event delegation for room actions
-  roomsList.addEventListener('click', (e) => {
+  roomsList.addEventListener('click', async (e) => {
     const card = e.target.closest('.room-card');
     if (!card) return;
     const roomId = card.dataset.roomId;
@@ -188,6 +191,27 @@ document.addEventListener('DOMContentLoaded', () => {
       copyToClipboard(link).then(() => {
         showToast('Link copied to clipboard!', 'success');
       });
+    }
+
+    if (e.target.closest('.action-show')) {
+      const btn = e.target.closest('.action-show');
+      btn.disabled = true;
+      btn.textContent = '...';
+      try {
+        const res = await fetch(`/api/admin/chat-entry/${slug}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = `/chat/${slug}?admin_entry=${data.token}`;
+        } else {
+          showToast(data.error || 'Failed to open room', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Show';
+        }
+      } catch (err) {
+        showToast('Failed to open room', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Show';
+      }
     }
 
     if (e.target.closest('.action-edit')) {
@@ -405,6 +429,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.opacity = '0';
     document.body.style.transition = 'opacity 300ms ease-out';
     setTimeout(() => window.location.href = '/', 300);
+  });
+
+  // ── Session destroyed on refresh / tab close ──
+  // This ensures the admin must re-enter credentials every time the dashboard loads.
+  window.addEventListener('beforeunload', () => {
+    // Use sendBeacon so the request fires even during page unload
+    navigator.sendBeacon('/api/admin/logout');
   });
 
   // ── Toast ──

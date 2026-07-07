@@ -22,11 +22,19 @@ const SESSION_SECRET = 'antor-secret-key-' + uuidv4();
 const chatTokens = new Map();
 const CHAT_TOKEN_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
+// One-time admin entry tokens — consumed on first use
+// Map<token, { slug, expiresAt }>
+const adminEntryTokens = new Map();
+const ADMIN_ENTRY_TTL = 5 * 60 * 1000; // 5 minutes
+
 // Cleanup expired tokens every 30 minutes
 setInterval(() => {
   const now = Date.now();
   for (const [token, data] of chatTokens) {
     if (now > data.expiresAt) chatTokens.delete(token);
+  }
+  for (const [token, data] of adminEntryTokens) {
+    if (now > data.expiresAt) adminEntryTokens.delete(token);
   }
 }, 30 * 60 * 1000);
 
@@ -177,12 +185,61 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 app.post('/api/admin/logout', (req, res) => {
-  req.session.destroy();
-  res.json({ success: true });
+  if (req.session) {
+    req.session.destroy(() => {
+      res.json({ success: true });
+    });
+  } else {
+    res.json({ success: true });
+  }
 });
 
 app.get('/api/admin/check', (req, res) => {
   res.json({ isAdmin: !!(req.session && req.session.isAdmin) });
+});
+
+// Issue a one-time admin entry token so admin can enter a chatroom as "Antor"
+app.post('/api/admin/chat-entry/:slug', requireAdmin, async (req, res) => {
+  try {
+    const roomRes = await query('SELECT id, deleted_at FROM rooms WHERE slug = ?', [req.params.slug]);
+    const room = roomRes.rows[0];
+    if (!room) return res.status(404).json({ error: 'Room not found' });
+    if (room.deleted_at) return res.status(403).json({ error: 'Room is not available' });
+
+    const token = uuidv4();
+    adminEntryTokens.set(token, {
+      slug: req.params.slug,
+      expiresAt: Date.now() + ADMIN_ENTRY_TTL
+    });
+    res.json({ success: true, token });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Validate and consume a one-time admin entry token
+app.get('/api/admin/chat-entry/:token', (req, res) => {
+  const token = req.params.token;
+  const data = adminEntryTokens.get(token);
+
+  if (!data || Date.now() > data.expiresAt) {
+    adminEntryTokens.delete(token);
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+
+  // Consume the token (one-time use)
+  adminEntryTokens.delete(token);
+
+  // Also issue a regular chatToken so the admin can load messages
+  // (the admin session may be destroyed by beforeunload before messages are fetched)
+  const chatToken = uuidv4();
+  chatTokens.set(chatToken, {
+    slug: data.slug,
+    userId: 'admin',
+    expiresAt: Date.now() + CHAT_TOKEN_TTL
+  });
+
+  res.json({ success: true, slug: data.slug, chatToken });
 });
 
 // ═══════════════════════════════════

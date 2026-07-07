@@ -41,6 +41,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadRoomInfo();
 
+  // ── Admin Auto-Entry (via "Show" button from dashboard) ──
+  // If URL contains ?admin_entry=TOKEN, validate and consume it, then enter as "Antor"
+  const urlParams = new URLSearchParams(window.location.search);
+  const adminEntryToken = urlParams.get('admin_entry');
+  if (adminEntryToken) {
+    // Hide auth gate immediately to avoid flash of login form
+    authGate.style.display = 'none';
+
+    // Remove the token from the URL immediately (security + clean URL)
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, '', cleanUrl);
+
+    // Validate token with the server
+    fetch(`/api/admin/chat-entry/${adminEntryToken}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          // Store chatToken so loadMessages() can authenticate even if admin session is gone
+          if (data.chatToken) {
+            sessionStorage.setItem('chatToken_' + slug, data.chatToken);
+          }
+          // Enter as Antor (admin)
+          enterChat('Antor', 'admin');
+        } else {
+          // Token invalid/expired — show normal auth gate
+          authGate.style.display = '';
+        }
+      })
+      .catch(() => {
+        authGate.style.display = '';
+      });
+  } else {
+    // Normal flow — show auth gate
+    authGate.style.display = '';
+  }
+
   // ── Auth Form ──
   chatAuthForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -247,6 +283,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Leave Chat ──
+  // Always navigates to '/' (the login page).
+  // If admin was in chat via "Show", they must re-login to dashboard.
   leaveChatBtn.addEventListener('click', () => {
     if (socket) socket.disconnect();
     chatInterface.style.opacity = '0';
