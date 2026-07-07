@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Antor Dashboard — Manage your private chat rooms">
+  <title>Antor — Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="bg-ambient"></div>
+
+  <div class="dashboard-page">
+    <!-- Header -->
+    <header class="dash-header">
+      <div class="logo">Antor</div>
+      <div class="dash-header-right">
+        <div class="admin-badge">
+          <span class="dot"></span>
+          Admin
+        </div>
+        <button id="logoutBtn" class="btn btn-secondary btn-sm">Sign Out</button>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <div class="dash-content">
+      <h1 class="dash-title">Dashboard</h1>
+      <p class="dash-subtitle">Create and manage your private chat rooms</p>
+
+      <!-- Tabs -->
+      <div class="dash-tabs">
+        <button class="dash-tab active" data-tab="create" id="tabCreate">
+          ✦ New Link
+        </button>
+        <button class="dash-tab" data-tab="rooms" id="tabRooms">
+          ◈ Previous Links
+        </button>
+        <button class="dash-tab" data-tab="trash" id="tabTrash">
+          ✕ Recycle Bin
+        </button>
+      </div>
+
+      <!-- Create Section -->
+      <div id="createSection" class="create-section">
+        <div class="create-form-card glass-card">
+          <h3>✦ Create New Chat Room</h3>
+          <form id="createForm" class="create-form">
+            <div class="input-group">
+              <label for="roomName">Room Name</label>
+              <input type="text" id="roomName" class="input-field" placeholder="e.g. Project Alpha Discussion" required>
+            </div>
+            <div class="input-group">
+              <label for="roomUserId">User ID</label>
+              <input type="text" id="roomUserId" class="input-field" placeholder="Custom user ID" required>
+            </div>
+            <div class="input-group">
+              <label for="roomPassword">Password</label>
+              <input type="password" id="roomPassword" class="input-field" placeholder="Custom password" required>
+            </div>
+            <button type="submit" id="generateBtn" class="btn btn-primary">
+              Generate Link
+            </button>
+          </form>
+
+          <div id="generatedLink" class="generated-link">
+            <h4>✓ Link Generated</h4>
+            <div class="generated-link-url">
+              <span id="linkUrl"></span>
+              <button class="copy-btn" id="copyLinkBtn">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rooms Section (hidden initially) -->
+      <div id="roomsSection" class="rooms-section" style="display: none;">
+        <div id="roomsList" class="rooms-grid"></div>
+        <div id="roomsEmpty" class="rooms-empty" style="display: none;">
+          <div class="empty-icon">◇</div>
+          <p>No chat rooms yet. Create your first one!</p>
+        </div>
+      </div>
+
+      <!-- Trash Section (hidden initially) -->
+      <div id="trashSection" class="rooms-section" style="display: none;">
+        <div id="trashList" class="rooms-grid"></div>
+        <div id="trashEmpty" class="rooms-empty" style="display: none;">
+          <div class="empty-icon">✕</div>
+          <p>Recycle bin is empty</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal glass-card-elevated">
+      <h3>Edit Credentials</h3>
+      <form id="editForm" class="modal-form">
+        <div class="input-group">
+          <label for="editUserId">New User ID</label>
+          <input type="text" id="editUserId" class="input-field" placeholder="Leave blank to keep current">
+        </div>
+        <div class="input-group">
+          <label for="editPassword">New Password</label>
+          <input type="password" id="editPassword" class="input-field" placeholder="Leave blank to keep current">
+        </div>
+        <input type="hidden" id="editRoomId">
+        <div class="modal-actions">
+          <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal glass-card-elevated">
+      <h3 id="confirmTitle">Confirm</h3>
+      <p id="confirmMessage" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--space-lg); line-height: 1.6;"></p>
+      <div class="modal-actions">
+        <button type="button" id="confirmCancelBtn" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="confirmOkBtn" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

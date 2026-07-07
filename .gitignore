@@ -1,0 +1,7 @@
+node_modules/
+antor.db
+antor.db-shm
+antor.db-wal
+.env
+.DS_Store
+*.log

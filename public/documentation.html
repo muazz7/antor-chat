@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Antor — Architecture & Deployment Documentation">
+  <title>Antor — Tech Stack & Deployment Documentation</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ═══════════════════════════════════════════
+       ANTOR — Documentation Stylesheet
+       ═══════════════════════════════════════════ */
+    :root {
+      --bg-primary: #07080a;
+      --bg-secondary: #0d0f13;
+      --bg-tertiary: #12151b;
+      --bg-elevated: #181c24;
+
+      --surface-glass: rgba(255, 255, 255, 0.03);
+      --surface-glass-hover: rgba(255, 255, 255, 0.06);
+      
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-medium: rgba(255, 255, 255, 0.1);
+
+      --text-primary: #f0f0f2;
+      --text-secondary: #8b8d98;
+      --text-tertiary: #5a5c66;
+
+      --accent: #d4a373;
+      --accent-glow: rgba(212, 163, 115, 0.15);
+      --teal: #2ec4b6;
+      --teal-glow: rgba(46, 196, 182, 0.15);
+      
+      --font-sans: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Background blobs */
+    .ambient-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .ambient-bg::before {
+      content: '';
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--accent-glow), transparent 70%);
+      filter: blur(80px);
+      opacity: 0.5;
+    }
+
+    .ambient-bg::after {
+      content: '';
+      position: absolute;
+      bottom: -10%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--teal-glow), transparent 70%);
+      filter: blur(80px);
+      opacity: 0.4;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    header {
+      margin-bottom: 4rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 2.5rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .brand .logo {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent), var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .brand .badge {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: var(--surface-glass);
+      border: 1px solid var(--border-medium);
+      color: var(--accent);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, #ffffff, var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 700px;
+    }
+
+    /* Main Sections */
+    section {
+      margin-bottom: 4rem;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      letter-spacing: -0.01em;
+    }
+
+    h2::before {
+      content: '◈';
+      color: var(--teal);
+      font-size: 1.1rem;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-top: 1.75rem;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+
+    /* Cards */
+    .glass-card {
+      background: var(--surface-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .glass-card:hover {
+      border-color: var(--border-medium);
+    }
+
+    /* Lists */
+    ul {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    li strong {
+      color: var(--text-primary);
+    }
+
+    li::before {
+      content: '•';
+      position: absolute;
+      left: 0.5rem;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* Code Blocks */
+    pre, code {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+
+    code {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      color: #e5c07b;
+    }
+
+    pre {
+      background: #0d0f13;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: #abb2bf;
+    }
+
+    /* Diagram Container */
+    .diagram-container {
+      background: #090b0e;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+
+    .mermaid {
+      background: transparent !important;
+    }
+
+    /* Highlight blocks */
+    .note-box {
+      border-left: 4px solid var(--teal);
+      background: rgba(46, 196, 182, 0.03);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0 12px 12px 0;
+      margin: 1.5rem 0;
+    }
+
+    .note-box p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .note-box strong {
+      color: var(--text-primary);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 6rem;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 2rem;
+      color: var(--text-tertiary);
+      font-size: 0.85rem;
+    }
+  </style>
+
+  <!-- Load Mermaid.js for drawing live diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      theme: 'dark',
+      themeVariables: {
+        background: '#090b0e',
+        primaryColor: '#12151b',
+        primaryTextColor: '#f0f0f2',
+        lineColor: '#2ec4b6',
+        secondaryColor: '#181c24',
+        tertiaryColor: '#0d0f13'
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="ambient-bg"></div>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <span class="logo">Antor</span>
+        <span class="badge">Architecture & Ops</span>
+      </div>
+      <h1>System Documentation & Online Deployment Guide</h1>
+      <p class="subtitle">A senior architectural handbook detailing the design, tech stack, real-time message flow, and production scaling strategy for the Antor Private Chat platform.</p>
+    </header>
+
+    <!-- SECTION 1: TECH STACK -->
+    <section>
+      <h2>System Architecture & Tech Stack</h2>
+      <div class="glass-card">
+        <p style="margin-bottom: 1.5rem;">Antor is engineered as a secure, fast, event-driven web application. The core architectural philosophy leverages asynchronous I/O and light database operations to scale elegantly on minimal server resources.</p>
+        
+        <ul>
+          <li><strong>Backend Engine:</strong> <code>Node.js</code> providing the asynchronous, non-blocking single-threaded event loop environment.</li>
+          <li><strong>Web Application Framework:</strong> <code>Express.js</code> managing API endpoints, serving the compiled static assets, and housing standard session management protocols.</li>
+          <li><strong>Database Engine:</strong> <code>SQLite</code> run natively via <code>better-sqlite3</code>. It is optimized under Write-Ahead Logging (<strong>WAL</strong>) mode to enable high-concurrency read operations while processing active write streams.</li>
+          <li><strong>Cryptographic Layers:</strong> <code>bcryptjs</code> used to apply hardware-resilient key-derivation hashing to room passwords.</li>
+          <li><strong>Client Layer:</strong> Optimized HTML5 layout featuring native visual viewport listening algorithms that gracefully handle mobile keyboard events on iOS & Android devices.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SECTION 2: REAL TIME PIPELINE -->
+    <section>
+      <h2>Real-Time Communication Flow</h2>
+      <div class="glass-card">
+        <p>Real-time interactions are powered by <strong>Socket.io</strong> using persistent HTTP/1.1 WebSocket connections. Here is the operational message and status cycle:</p>
+        
+        <div class="diagram-container">
+          <div class="mermaid">
+            sequenceDiagram
+              participant C as Client Browser
+              participant S as Express & Socket.io Server
+              participant DB as SQLite Engine
+
+              C->>S: HTTP Request /chat/:slug
+              S-->>C: Serve compiled markup & assets
+              C->>S: Request Connection Upgrade (ws://)
+              S-->>C: Socket Handshake Approved
+              C->>S: emit("join-room", slug)
+              Note over S: Server signs socket to virtual channel
+              
+              rect rgb(24, 28, 36)
+                Note over C, S: Message Broadcast Flow
+                C->>S: emit("send-message", { content })
+                S->>DB: INSERT INTO messages (sqlite write)
+                S-->>C: broadcast("new-message") to room channels
+              end
+          </div>
+        </div>
+
+        <div class="note-box">
+          <p><strong>Note on Room Isolation:</strong> Sockets are cataloged inside isolated logical constructs using Socket.io's built-in <code>socket.join(roomSlug)</code>. Broadcasts are strict and scoped utilizing <code>io.to(slug).emit(...)</code> to guarantee zero cross-room data leaks.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: ONLINE DEPLOYMENT -->
+    <section>
+      <h2>Taking the Application Online</h2>
+      <div class="glass-card">
+        <p style="margin-bottom: 1.5rem;">Running the server locally differs from orchestrating a secure production environment. To deploy the system online securely and at scale, the following system-level changes are recommended:</p>
+
+        <h3>1. Horizontal Scaling & Process Distribution</h3>
+        <p style="margin-bottom: 1rem;">Node's single-threaded nature means it runs on a single CPU core. In production, we run multiple server processes using a process manager or cluster. However, sockets are in-memory. If Client A is on Server Process 1, and Client B is on Server Process 2, they cannot communicate directly.</p>
+        <ul>
+          <li><strong>Resolution:</strong> Attach a <strong>Redis Adapter</strong> (<code>@socket.io/redis-adapter</code>). Sockets will transparently distribute messaging events across all worker processes using Redis Pub/Sub mechanics.</li>
+        </ul>
+
+        <h3>2. Production Database Integration</h3>
+        <p style="margin-bottom: 1rem;">SQLite stores data in a local file. On ephemeral virtual machines (such as AWS Fargate, GCP Cloud Run, or Kubernetes pods), the filesystem is wiped on restart, destroying data.</p>
+        <ul>
+          <li><strong>Resolution:</strong> Transition the persistence layer from SQLite to <strong>PostgreSQL</strong> or a managed relational database server. Use connection pool configurations to maintain stable database connections.</li>
+        </ul>
+
+        <h3>3. Reverse Proxy & SSL Offloading (Nginx)</h3>
+        <p style="margin-bottom: 1rem;">It is bad practice to expose the Node.js port directly to the internet. We install Nginx or Cloudflare in front of the application to serve as a reverse proxy, rate-limiter, and SSL handshaker.</p>
+        
+        <p style="margin-bottom: 0.5rem; font-weight: 500;">Nginx WebSocket Upgrade Configuration:</p>
+        <pre><code>server {
+    listen 80;
+    server_name chat.yourdomain.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        
+        # Upgrade headers to support persistent WebSocket streams
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</code></pre>
+      </div>
+    </section>
+
+    <footer>
+      <p>Antor Chat Project • Architecture Specification & System Docs</p>
+    </footer>
+  </div>
+
+</body>
+</html>

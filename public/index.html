@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Antor — Private secure chat platform">
+  <title>Antor — Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="bg-ambient"></div>
+
+  <main class="login-page">
+    <div class="login-container">
+      <div class="login-brand">
+        <div class="logo">Antor</div>
+        <div class="tagline">Private Communications</div>
+      </div>
+
+      <div class="login-card glass-card-elevated">
+        <h2>Welcome back</h2>
+        <div id="loginError" class="login-error">Invalid username or password</div>
+        <form id="loginForm" class="login-form" autocomplete="off">
+          <div class="input-group">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              class="input-field"
+              placeholder="Enter your username"
+              autocomplete="off"
+              required
+            >
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              class="input-field"
+              placeholder="Enter your password"
+              autocomplete="off"
+              required
+            >
+          </div>
+          <button type="submit" id="loginBtn" class="btn btn-primary">
+            Sign In
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
