@@ -79,6 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ name, userId, password })
       });
 
+      if (res.status === 401) {
+        showToast('Session expired. Redirecting to login...', 'error');
+        setTimeout(() => window.location.href = '/', 1500);
+        return;
+      }
+
       const data = await res.json();
 
       if (data.success) {
@@ -137,6 +143,13 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadRooms() {
     try {
       const res = await fetch('/api/rooms');
+
+      if (res.status === 401) {
+        showToast('Session expired. Redirecting to login...', 'error');
+        setTimeout(() => window.location.href = '/', 1500);
+        return;
+      }
+
       const rooms = await res.json();
 
       if (rooms.length === 0) {
@@ -253,6 +266,13 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadTrash() {
     try {
       const res = await fetch('/api/rooms/trash');
+
+      if (res.status === 401) {
+        showToast('Session expired. Redirecting to login...', 'error');
+        setTimeout(() => window.location.href = '/', 1500);
+        return;
+      }
+
       const rooms = await res.json();
 
       if (rooms.length === 0) {
@@ -431,12 +451,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => window.location.href = '/', 300);
   });
 
-  // ── Session destroyed on refresh / tab close ──
-  // This ensures the admin must re-enter credentials every time the dashboard loads.
-  window.addEventListener('beforeunload', () => {
-    // Use sendBeacon so the request fires even during page unload
-    navigator.sendBeacon('/api/admin/logout');
-  });
+  // Note: Session is destroyed via the Sign Out button.
+  // Auto-logout on beforeunload was removed because it destroyed the admin
+  // session during normal navigation (e.g. clicking "Show" to view a chat room),
+  // causing "control panel request failed" errors on the deployed version.
 
   // ── Toast ──
   window.showToast = (message, type = 'success') => {

@@ -15,7 +15,7 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 const ADMIN_USERNAME = 'asAntor';
 const ADMIN_PASSWORD = 'AnTor7*7';
-const SESSION_SECRET = 'antor-secret-key-' + uuidv4();
+const SESSION_SECRET = process.env.SESSION_SECRET || 'antor-secret-key-change-me-in-production';
 
 // In-memory chat tokens (per-tab authentication)
 // Map<token, { slug, userId, expiresAt }>
